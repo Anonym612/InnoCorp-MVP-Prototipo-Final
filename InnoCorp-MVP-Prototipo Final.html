@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>InnoCorp TalentaContenta · MVP Prototipo Visual</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #0f1117;
+    --paper: #f5f2eb;
+    --cream: #ede9df;
+    --accent: #c8441a;
+    --accent2: #1a6ec8;
+    --gold: #c8a21a;
+    --green: #1a8c4e;
+    --yellow: #e8b800;
+    --red: #c8441a;
+    --muted: #6b6560;
+    --border: #d4cfc5;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--ink);
+    color: var(--ink);
+    min-height: 100vh;
+  }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    background: var(--ink);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 40px; height: 56px;
+    border-bottom: 1px solid #2a2a35;
+  }
+  .nav-logo { color: #fff; font-family: 'DM Serif Display'; font-size: 1.0rem; letter-spacing: 0.02em; }
+  .nav-logo span { color: var(--accent); }
+  .nav-pills { display: flex; gap: 4px; }
+  .nav-pill {
+    background: none; border: none; color: #888; font-family: 'DM Sans'; font-size: 0.78rem;
+    padding: 6px 14px; border-radius: 20px; cursor: pointer; transition: all .2s; font-weight: 500;
+    letter-spacing: 0.03em; text-transform: uppercase;
+  }
+  .nav-pill:hover { color: #fff; background: #1e1e2a; }
+  .nav-pill.active { color: #fff; background: var(--accent); }
+  .nav-badge {
+    color: #888; font-size: 0.72rem; font-weight: 500;
+    background: #1e1e2a; padding: 4px 12px; border-radius: 20px;
+    letter-spacing: 0.05em;
+  }
+
+  /* SCREENS */
+  .screen { display: none; min-height: 100vh; padding-top: 56px; background: var(--paper); }
+  .screen.active { display: block; animation: fadeIn .35s ease; }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+
+  /* HERO */
+  .hero {
+    background: var(--ink);
+    padding: 80px 60px 70px;
+    position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute; right: -80px; top: -80px;
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(200,68,26,0.15) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .hero-eyebrow {
+    color: var(--accent); font-size: 0.72rem; font-weight: 600; letter-spacing: 0.18em;
+    text-transform: uppercase; margin-bottom: 20px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .hero-eyebrow::before { content:''; width: 30px; height: 1px; background: var(--accent); }
+  .hero h1 {
+    font-family: 'DM Serif Display'; color: #fff; font-size: clamp(2.8rem, 5vw, 4.5rem);
+    line-height: 1.05; max-width: 700px; margin-bottom: 28px;
+  }
+  .hero h1 em { color: var(--accent); font-style: italic; }
+  .hero-desc { color: #9a9590; font-size: 1rem; max-width: 520px; line-height: 1.7; margin-bottom: 44px; }
+  .hero-meta {
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px;
+    background: #2a2a35; border: 1px solid #2a2a35; border-radius: 10px; overflow: hidden;
+    max-width: 680px;
+  }
+  .hero-meta-cell {
+    background: #13131b; padding: 18px 22px;
+  }
+  .hero-meta-cell .label { color: #555; font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 5px; }
+  .hero-meta-cell .value { color: #ddd; font-size: 0.9rem; font-weight: 500; }
+
+  /* STAT STRIP */
+  .stat-strip {
+    display: grid; grid-template-columns: repeat(5, 1fr);
+    border-bottom: 1px solid var(--border);
+  }
+  .stat-card {
+    padding: 32px 28px; border-right: 1px solid var(--border);
+    position: relative;
+  }
+  .stat-card:last-child { border-right: none; }
+  .stat-card .metric-label { font-size: 0.67rem; text-transform: uppercase; letter-spacing: 0.12em; color: var(--muted); margin-bottom: 8px; }
+  .stat-card .metric-base { font-size: 2rem; font-family: 'DM Serif Display'; color: var(--ink); line-height: 1; }
+  .stat-card .metric-arrow {
+    display: flex; align-items: center; gap: 6px; margin-top: 6px;
+    font-size: 0.8rem; font-weight: 600;
+  }
+  .metric-arrow.down { color: var(--green); }
+  .metric-arrow.up { color: var(--accent2); }
+  .stat-card .metric-target { font-size: 0.78rem; color: var(--muted); margin-top: 4px; }
+  .stat-card::after {
+    content: ''; position: absolute; bottom: 0; left: 28px; right: 28px;
+    height: 3px; border-radius: 2px;
+  }
+  .stat-card:nth-child(1)::after { background: var(--accent); }
+  .stat-card:nth-child(2)::after { background: var(--accent2); }
+  .stat-card:nth-child(3)::after { background: var(--gold); }
+  .stat-card:nth-child(4)::after { background: var(--green); }
+  .stat-card:nth-child(5)::after { background: #9b59b6; }
+
+  /* SECTION */
+  .section { padding: 56px 60px; }
+  .section + .section { border-top: 1px solid var(--border); }
+  .section-header { display: flex; align-items: baseline; gap: 16px; margin-bottom: 36px; }
+  .section-num { font-family: 'DM Serif Display'; font-size: 0.95rem; color: var(--accent); }
+  .section-title { font-family: 'DM Serif Display'; font-size: 1.9rem; color: var(--ink); }
+  .section-sub { font-size: 0.88rem; color: var(--muted); margin-left: auto; max-width: 360px; text-align: right; line-height: 1.5; }
+
+  /* CHURN CHART */
+  .churn-chart {
+    background: var(--ink); border-radius: 14px; padding: 40px; margin-bottom: 20px;
+    position: relative; overflow: hidden;
+  }
+  .churn-chart::before {
+    content: ''; position: absolute; inset: 0;
+    background: radial-gradient(ellipse at 80% 50%, rgba(200,68,26,0.08) 0%, transparent 60%);
+  }
+  .chart-title { color: #888; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.12em; margin-bottom: 28px; }
+  .chart-bars { display: flex; align-items: flex-end; gap: 6px; height: 140px; }
+  .bar-group { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .bar-wrap { flex: 1; width: 100%; display: flex; align-items: flex-end; }
+  .bar {
+    width: 100%; border-radius: 4px 4px 0 0;
+    transition: opacity .2s;
+    position: relative;
+  }
+  .bar:hover { opacity: 0.85; }
+  .bar-label { color: #555; font-size: 0.62rem; text-align: center; }
+  .bar-val { position: absolute; top: -20px; left: 50%; transform: translateX(-50%); color: #ccc; font-size: 0.68rem; font-weight: 600; white-space: nowrap; }
+  .ref-line {
+    position: absolute; right: 40px; left: 40px; border-top: 1px dashed #c8441a44;
+  }
+  .ref-label { position: absolute; right: 44px; color: var(--accent); font-size: 0.62rem; font-weight: 600; }
+  .chart-caption { color: #666; font-size: 0.78rem; line-height: 1.5; margin-top: 16px; }
+
+  /* CAUSAS PIE */
+  .causas-grid { display: grid; grid-template-columns: 220px 1fr; gap: 32px; align-items: center; }
+  .donut-wrap { position: relative; width: 200px; height: 200px; }
+  .donut-wrap svg { width: 200px; height: 200px; transform: rotate(-90deg); }
+  .donut-center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .donut-center .big { font-family: 'DM Serif Display'; font-size: 2.2rem; color: var(--ink); }
+  .donut-center .small { font-size: 0.65rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; }
+  .causa-list { display: flex; flex-direction: column; gap: 12px; }
+  .causa-item { display: flex; align-items: center; gap: 12px; }
+  .causa-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .causa-name { font-size: 0.88rem; color: var(--ink); flex: 1; }
+  .causa-pct { font-size: 0.88rem; font-weight: 600; }
+  .causa-bar-bg { flex: 2; height: 5px; background: var(--cream); border-radius: 3px; overflow: hidden; }
+  .causa-bar-fill { height: 100%; border-radius: 3px; }
+
+  /* FUNCIONALIDADES */
+  .func-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .func-card {
+    border: 1px solid var(--border); border-radius: 14px; overflow: hidden;
+    transition: box-shadow .2s;
+  }
+  .func-card:hover { box-shadow: 0 8px 32px rgba(0,0,0,0.1); }
+  .func-header {
+    padding: 20px 24px; display: flex; align-items: center; gap: 14px;
+  }
+  .func-badge {
+    width: 40px; height: 40px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.2rem;
+  }
+  .func-id { font-family: 'DM Serif Display'; font-size: 1.1rem; }
+  .func-name { font-weight: 600; font-size: 1rem; }
+  .func-tag {
+    margin-left: auto; font-size: 0.65rem; font-weight: 600;
+    padding: 4px 10px; border-radius: 20px; letter-spacing: 0.08em; text-transform: uppercase;
+  }
+  .func-body { padding: 0 24px 24px; }
+  .func-row { margin-bottom: 14px; }
+  .func-row-label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--muted); margin-bottom: 5px; }
+  .func-row-text { font-size: 0.85rem; line-height: 1.6; color: var(--ink); }
+  .func-kpi {
+    background: var(--cream); border-radius: 8px; padding: 12px 14px;
+    font-size: 0.82rem; font-weight: 600; color: var(--ink);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .func-kpi::before { content: '→'; color: var(--green); }
+
+  /* F1: semaforo */
+  .semaforo { display: flex; gap: 10px; margin-top: 10px; }
+  .semaforo-item {
+    flex: 1; border-radius: 8px; padding: 10px; text-align: center; font-size: 0.72rem; font-weight: 600;
+  }
+  .sem-green { background: #d4f0e3; color: #1a7a42; }
+  .sem-yellow { background: #fff8d4; color: #9a7800; }
+  .sem-red { background: #fde8e4; color: #c8441a; }
+
+  /* F3: checkin */
+  .checkin { margin-top: 10px; display: flex; flex-direction: column; gap: 8px; }
+  .checkin-q {
+    background: var(--cream); border-radius: 8px; padding: 10px 14px;
+    font-size: 0.8rem; display: flex; align-items: flex-start; gap: 10px;
+  }
+  .checkin-q .q-num { color: var(--muted); font-weight: 600; flex-shrink: 0; }
+
+  /* OUT OF SCOPE */
+  .oos-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  .oos-item {
+    border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px;
+    position: relative; overflow: hidden;
+  }
+  .oos-item::before {
+    content: '✕'; position: absolute; right: 16px; top: 12px;
+    color: var(--border); font-size: 1.1rem;
+  }
+  .oos-title { font-weight: 600; font-size: 0.88rem; margin-bottom: 5px; }
+  .oos-reason { font-size: 0.78rem; color: var(--muted); line-height: 1.5; }
+  .lean-box {
+    background: #f0f7ff; border: 1.5px solid #b8d4f4; border-radius: 12px;
+    padding: 20px 24px; margin-top: 24px;
+    font-size: 0.88rem; line-height: 1.7; color: #1a4a7a;
+  }
+  .lean-box strong { font-weight: 600; }
+
+  /* TRAZABILIDAD TABLE */
+  .trace-table { width: 100%; border-collapse: collapse; }
+  .trace-table th {
+    background: var(--ink); color: #ccc; font-size: 0.68rem; text-transform: uppercase;
+    letter-spacing: 0.1em; padding: 12px 16px; text-align: left; font-weight: 500;
+  }
+  .trace-table td {
+    padding: 14px 16px; font-size: 0.85rem; border-bottom: 1px solid var(--border);
+    vertical-align: top; line-height: 1.5;
+  }
+  .trace-table tr:hover td { background: var(--cream); }
+  .trace-badge {
+    display: inline-block; background: var(--ink); color: #fff;
+    font-size: 0.7rem; font-weight: 700; padding: 3px 9px; border-radius: 5px;
+  }
+  .kpi-change { font-weight: 700; }
+  .kpi-change.pos { color: var(--green); }
+  .kpi-change.neg-good { color: var(--green); }
+
+  /* CRITERIOS */
+  .criterios { display: flex; flex-direction: column; gap: 10px; }
+  .criterio-row {
+    display: grid; grid-template-columns: 36px 1fr 140px 140px;
+    align-items: center; gap: 16px;
+    border: 1px solid var(--border); border-radius: 10px; padding: 14px 18px;
+    transition: background .15s;
+  }
+  .criterio-row:hover { background: var(--cream); }
+  .criterio-num {
+    width: 32px; height: 32px; border-radius: 50%; background: var(--ink); color: #fff;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'DM Serif Display'; font-size: 0.9rem;
+  }
+  .criterio-desc { font-size: 0.88rem; line-height: 1.4; }
+  .criterio-valor { text-align: center; }
+  .valor-badge {
+    display: inline-block; padding: 5px 12px; border-radius: 20px;
+    font-size: 0.78rem; font-weight: 600; background: #d4f0e3; color: #1a7a42;
+  }
+  .criterio-ref { font-size: 0.75rem; color: var(--muted); }
+  .fase4-box {
+    margin-top: 28px; background: var(--ink); border-radius: 14px;
+    padding: 28px 32px; color: #ccc;
+  }
+  .fase4-box h4 { color: #fff; font-family: 'DM Serif Display'; font-size: 1.2rem; margin-bottom: 12px; }
+  .fase4-box p { font-size: 0.85rem; line-height: 1.7; }
+  .fase4-box strong { color: #fff; }
+
+  /* FOOTER */
+  footer {
+    background: var(--ink); color: #555; padding: 28px 60px;
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 0.75rem;
+  }
+  footer .f-left { color: #555; }
+  footer .f-right { color: #3a3a45; text-align: right; }
+
+  /* SIDEBAR SCROLL INDICATOR */
+  .progress-bar {
+    position: fixed; top: 56px; left: 0; right: 0; height: 2px; z-index: 99;
+    background: #2a2a35;
+  }
+  .progress-fill { height: 100%; background: var(--accent); width: 0%; transition: width .1s; }
+
+  /* Responsive */
+  @media (max-width: 900px) {
+    .hero { padding: 50px 24px 44px; }
+    .hero-meta { grid-template-columns: repeat(2,1fr); }
+    .stat-strip { grid-template-columns: repeat(2,1fr); }
+    .section { padding: 40px 24px; }
+    .func-cards { grid-template-columns: 1fr; }
+    .oos-grid { grid-template-columns: 1fr; }
+    .criterio-row { grid-template-columns: 36px 1fr; }
+    .criterio-valor, .criterio-ref { display: none; }
+    footer { padding: 24px; flex-direction: column; gap: 8px; text-align: center; }
+    nav { padding: 0 16px; }
+    .nav-pill { display: none; }
+    .nav-pill.active { display: block; }
+  }
+</style>
+</head>
+<body>
+
+<div class="progress-bar"><div class="progress-fill" id="prog"></div></div>
+
+<nav>
+  <div class="nav-logo">Inno<span>Corp</span> · TalentaContenta</div>
+  <div class="nav-pills">
+    <button class="nav-pill active" onclick="showScreen('portada')">Portada</button>
+    <button class="nav-pill" onclick="showScreen('contexto')">Contexto</button>
+    <button class="nav-pill" onclick="showScreen('funcionalidades')">Funcionalidades</button>
+    <button class="nav-pill" onclick="showScreen('metricas')">Métricas</button>
+    <button class="nav-pill" onclick="showScreen('criterios')">Criterios</button>
+  </div>
+  <div class="nav-badge">Sprint 1 · Feb 2026</div>
+</nav>
+
+<!-- ===================== PORTADA ===================== -->
+<div class="screen active" id="screen-portada">
+  <div class="hero">
+    <div class="hero-eyebrow">Sprint 1 · Fase 2 — Lean Startup</div>
+    <h1><em>TalentaContenta</em> — Reducción del Churn de Empleados en InnoCorp</h1>
+    <p class="hero-desc">
+      Prototipo visual y documental del MVP. Un programa piloto de 4–6 semanas para reducir la rotación desde el 20 % actual, atacando las dos causas principales: la sobrecarga laboral y la falta de desarrollo profesional.
+    </p>
+    <div class="hero-meta">
+      <div class="hero-meta-cell">
+        <div class="label">Proyecto</div>
+        <div class="value">TalentaContenta</div>
+      </div>
+      <div class="hero-meta-cell">
+        <div class="label">Equipo</div>
+        <div class="value">Las Alemanas</div>
+      </div>
+      <div class="hero-meta-cell">
+        <div class="label">Scrum Master</div>
+        <div class="value">Finja</div>
+      </div>
+      <div class="hero-meta-cell">
+        <div class="label">Sponsor</div>
+        <div class="value">M. González (CPO)</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="stat-strip">
+    <div class="stat-card">
+      <div class="metric-label">Churn actual</div>
+      <div class="metric-base">20 %</div>
+      <div class="metric-arrow down">↓ objetivo: 14 %</div>
+      <div class="metric-target">–30 % en 12 meses</div>
+    </div>
+    <div class="stat-card">
+      <div class="metric-label">NPS empleados</div>
+      <div class="metric-base">35 pts</div>
+      <div class="metric-arrow up">↑ objetivo: 50+</div>
+      <div class="metric-target">+43 % en 12 meses</div>
+    </div>
+    <div class="stat-card">
+      <div class="metric-label">Horas semanales</div>
+      <div class="metric-base">52 h</div>
+      <div class="metric-arrow down">↓ objetivo: 45 h</div>
+      <div class="metric-target">–13 % en 12 meses</div>
+    </div>
+    <div class="stat-card">
+      <div class="metric-label">Tiempo en tareas admin</div>
+      <div class="metric-base">35 %</div>
+      <div class="metric-arrow down">↓ objetivo: 25 %</div>
+      <div class="metric-target">–29 % en 12 meses</div>
+    </div>
+    <div class="stat-card">
+      <div class="metric-label">Satisfacción herramientas</div>
+      <div class="metric-base">5.2/10</div>
+      <div class="metric-arrow up">↑ objetivo: 7.5/10</div>
+      <div class="metric-target">+44 % en 12 meses</div>
+    </div>
+  </div>
+
+  <!-- Hipótesis central -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">●</div>
+      <div class="section-title">Hipótesis central del MVP</div>
+    </div>
+    <div style="background:var(--cream);border-left:4px solid var(--accent);border-radius:0 12px 12px 0;padding:24px 28px;font-size:1.05rem;line-height:1.75;color:var(--ink);max-width:760px;">
+      Si reducimos la sobrecarga laboral visible y creamos un mecanismo de señalización temprana, los empleados de InnoCorp reportarán mayor satisfacción <strong>(NPS &gt; 50)</strong> y la intención de abandono disminuirá lo suficiente para validar la escala del programa completo.
+    </div>
+    <div style="margin-top:28px;display:flex;gap:16px;flex-wrap:wrap;">
+      <div style="background:var(--ink);color:#fff;border-radius:10px;padding:18px 24px;min-width:180px;">
+        <div style="font-size:0.65rem;color:#888;text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;">Presupuesto</div>
+        <div style="font-family:'DM Serif Display';font-size:1.8rem;">100.000 €</div>
+        <div style="font-size:0.75rem;color:#666;margin-top:4px;">Aprobado — Sponsor ejecutivo</div>
+      </div>
+      <div style="background:var(--ink);color:#fff;border-radius:10px;padding:18px 24px;min-width:180px;">
+        <div style="font-size:0.65rem;color:#888;text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;">Tiempo testeable</div>
+        <div style="font-family:'DM Serif Display';font-size:1.8rem;">4–6 sem.</div>
+        <div style="font-size:0.75rem;color:#666;margin-top:4px;">5–10 personas · Piloto real</div>
+      </div>
+      <div style="background:var(--ink);color:#fff;border-radius:10px;padding:18px 24px;min-width:180px;">
+        <div style="font-size:0.65rem;color:#888;text-transform:uppercase;letter-spacing:.1em;margin-bottom:6px;">Causa a atacar</div>
+        <div style="font-family:'DM Serif Display';font-size:1.8rem;">#1 + #2</div>
+        <div style="font-size:0.75rem;color:#666;margin-top:4px;">Causas #1 y #2 · 42 % + 38 % menciones</div>
+      </div>
+    </div>
+    <div style="margin-top:28px;text-align:center;">
+      <button class="nav-pill active" style="font-size:0.9rem;padding:12px 28px;border-radius:8px;" onclick="showScreen('contexto')">Ver análisis de contexto →</button>
+    </div>
+  </div>
+
+  <footer>
+    <div class="f-left">InnoCorp Technology Consulting · Emprendimiento Interno 2025–2026</div>
+    <div class="f-right">Prof. Francisco Avendaño Martínez · Año Académico 2025–2026</div>
+  </footer>
+</div>
+
+<!-- ===================== CONTEXTO ===================== -->
+<div class="screen" id="screen-contexto">
+  <!-- Churn evolution chart -->
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">01</div>
+      <div class="section-title">Contexto y Criterios de Diseño del MVP</div>
+      <div class="section-sub">El churn ha crecido +7 puntos en 18 meses, muy por encima del benchmark sectorial (12–14 %).</div>
+    </div>
+
+      <div class="churn-chart">
+      <div class="chart-title">Evaluación del Churn en InnoCorp (2024–2025)</div>
+      <div style="position:relative;padding-top:30px;">
+        <!-- Reference line at sector ~13% -->
+        <div class="ref-line" style="bottom: calc(140px * 0.59 + 40px);"></div>
+        <div class="ref-label" style="bottom: calc(140px * 0.59 + 43px);">Ref. sector 13 %</div>
+        <div class="chart-bars">
+          <!-- H1 2024=20%, H2 2024=22%, H1 2025=18%, H2 2025=13%, Target=14% -->
+          <div class="bar-group">
+            <div class="bar-wrap">
+              <div class="bar" style="height:calc(140px * 0.91);background:linear-gradient(180deg,#c8441a,#e06040);">
+                <span class="bar-val">20 %</span>
+              </div>
+            </div>
+            <div class="bar-label">H1 2024</div>
+          </div>
+          <div class="bar-group">
+            <div class="bar-wrap">
+              <div class="bar" style="height:calc(140px * 1);background:linear-gradient(180deg,#c8441a,#e06040);">
+                <span class="bar-val">22 %</span>
+              </div>
+            </div>
+            <div class="bar-label">H2 2024</div>
+          </div>
+          <div class="bar-group">
+            <div class="bar-wrap">
+              <div class="bar" style="height:calc(140px * 0.818);background:linear-gradient(180deg,#c8441a,#e06040);">
+                <span class="bar-val">18 %</span>
+              </div>
+            </div>
+            <div class="bar-label">H1 2025</div>
+          </div>
+          <div class="bar-group">
+            <div class="bar-wrap">
+              <div class="bar" style="height:calc(140px * 0.59);background:linear-gradient(180deg,#e8a030,#c8441a);">
+                <span class="bar-val" style="color:#ffcc88;">13 %</span>
+              </div>
+            </div>
+            <div class="bar-label" style="color:#e8a030;">H2 2025</div>
+          </div>
+          <div class="bar-group">
+            <div class="bar-wrap">
+              <div class="bar" style="height:calc(140px * 0.636);background:#2a5c3a;border:1px dashed #4a9c6a;">
+                <span class="bar-val" style="color:#4a9c6a;">14 %</span>
+              </div>
+            </div>
+            <div class="bar-label" style="color:#4a9c6a;">Target</div>
+          </div>
+        </div>
+      </div>
+      <div class="chart-caption">
+        Fuente: HR Analytics InnoCorp · HR Records. La tasa del 13 % en H2 2025 se sitúa por debajo del target del 14 %, con un coste estimado de churn en caída sostenida.
+      </div>
+    </div>
+
+    <!-- Causas -->
+    <div class="section-header" style="margin-top:44px;">
+      <div class="section-num">02</div>
+      <div class="section-title">Justificación del Foco del MVP</div>
+      <div class="section-sub">El MVP ataca las causas #1 y #2 por ser las de mayor impacto y resolubles sin inversión significativa.</div>
+    </div>
+
+    <div class="causas-grid">
+      <div class="donut-wrap">
+        <svg viewBox="0 0 100 100">
+          <!-- Total circumference of r=38: 2*PI*38 ≈ 238.76 -->
+          <!-- Sobrecarga 42%: 238.76*0.42=100.28, remainder=138.48 -->
+          <!-- Desarrollo 38%: 238.76*0.38=90.73, remainder=148.03 -->
+          <!-- Salarial 20%: 238.76*0.20=47.75, remainder=191.01 -->
+          <circle cx="50" cy="50" r="38" fill="none" stroke="#e8e4d9" stroke-width="14"/>
+          <circle cx="50" cy="50" r="38" fill="none" stroke="#c8441a" stroke-width="14"
+            stroke-dasharray="100.28 138.48" stroke-dashoffset="0"/>
+          <circle cx="50" cy="50" r="38" fill="none" stroke="#1a6ec8" stroke-width="14"
+            stroke-dasharray="90.73 148.03" stroke-dashoffset="-100.28"/>
+          <circle cx="50" cy="50" r="38" fill="none" stroke="#c8a21a" stroke-width="14"
+            stroke-dasharray="47.75 191.01" stroke-dashoffset="-191.01"/>
+        </svg>
+        <div class="donut-center">
+          <div class="big">n=40</div>
+          <div class="small">entrevistas</div>
+        </div>
+      </div>
+      <div class="causa-list">
+        <div class="causa-item">
+          <div class="causa-dot" style="background:#c8441a;"></div>
+          <div class="causa-name"><strong>Sobrecarga laboral</strong> — Causa #1 <span style="font-size:.72rem;background:#fde8e4;color:#c8441a;padding:2px 8px;border-radius:12px;font-weight:600;margin-left:6px;">MVP FOCUS</span></div>
+          <div style="flex:2"><div class="causa-bar-bg"><div class="causa-bar-fill" style="width:42%;background:#c8441a;"></div></div></div>
+          <div class="causa-pct" style="color:#c8441a;">42 %</div>
+        </div>
+        <div class="causa-item">
+          <div class="causa-dot" style="background:#1a6ec8;"></div>
+          <div class="causa-name"><strong>Falta de desarrollo profesional</strong> — Causa #2 <span style="font-size:.72rem;background:#e0eeff;color:#1a6ec8;padding:2px 8px;border-radius:12px;font-weight:600;margin-left:6px;">MVP FOCUS</span></div>
+          <div style="flex:2"><div class="causa-bar-bg"><div class="causa-bar-fill" style="width:38%;background:#1a6ec8;"></div></div></div>
+          <div class="causa-pct" style="color:#1a6ec8;">38 %</div>
+        </div>
+        <div class="causa-item">
+          <div class="causa-dot" style="background:#c8a21a;"></div>
+          <div class="causa-name">Competitividad salarial — Causa #3</div>
+          <div style="flex:2"><div class="causa-bar-bg"><div class="causa-bar-fill" style="width:20%;background:#c8a21a;"></div></div></div>
+          <div class="causa-pct" style="color:#c8a21a;">20 %</div>
+        </div>
+        <div style="font-size:.78rem;color:var(--muted);margin-top:8px;line-height:1.5;">
+          La sobrecarga laboral (42 %) y la falta de desarrollo profesional (38 %) son los focos del MVP. Ambas causas pueden abordarse sin inversiones significativas mediante procesos optimizados y metodologías ágiles.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="f-left">InnoCorp Technology Consulting · Sprint 1 · Feb 2026</div>
+    <div class="f-right">
+      <button class="nav-pill active" style="padding:8px 18px;" onclick="showScreen('funcionalidades')">Ver funcionalidades →</button>
+    </div>
+  </footer>
+</div>
+
+<!-- ===================== FUNCIONALIDADES ===================== -->
+<div class="screen" id="screen-funcionalidades">
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">03</div>
+      <div class="section-title">Funcionalidades Mínimas del Programa Piloto</div>
+      <div class="section-sub">4 funcionalidades must-have. Criterio: sin esta funcionalidad, no podemos validar la hipótesis central.</div>
+    </div>
+
+    <div class="func-cards">
+
+      <!-- F1 -->
+      <div class="func-card">
+        <div class="func-header" style="background:#fff8f6;border-bottom:1px solid var(--border);">
+          <div class="func-badge" style="background:#fde8e4;">📊</div>
+          <div>
+            <div class="func-id" style="color:var(--accent);">F1</div>
+            <div class="func-name">Dashboard de Carga de Trabajo Personal</div>
+          </div>
+          <div class="func-tag" style="background:#fde8e4;color:#c8441a;">Semáforo</div>
+        </div>
+        <div class="func-body" style="padding-top:20px;">
+          <div class="func-row">
+            <div class="func-row-label">Problema que resuelve</div>
+            <div class="func-row-text">Los empleados trabajan 52 horas semanales sin visibilidad sobre su carga real. Esta invisibilidad impide la redistribución de tareas a tiempo.</div>
+          </div>
+          <div class="func-row">
+            <div class="func-row-label">En el MVP basta con</div>
+            <div class="func-row-text">Vista semanal (Microsoft Forms, Notion o Google Sheets) donde el empleado registra tareas por proyecto.</div>
+          </div>
+          <div class="semaforo">
+            <div class="semaforo-item sem-green">🟢 VERDE<br>&lt;45 h</div>
+            <div class="semaforo-item sem-yellow">🟡 AMARILLO<br>45–50 h</div>
+            <div class="semaforo-item sem-red">🔴 ROJO<br>&gt;50 h</div>
+          </div>
+          <div class="func-kpi" style="margin-top:14px;">Horas semanales: 52 h → 45 h &nbsp;(–13 %)</div>
+        </div>
+      </div>
+
+      <!-- F2 -->
+      <div class="func-card">
+        <div class="func-header" style="background:#f0f7ff;border-bottom:1px solid var(--border);">
+          <div class="func-badge" style="background:#c8dff8;">⚡</div>
+          <div>
+            <div class="func-id" style="color:var(--accent2);">F2</div>
+            <div class="func-name">Automatización de Reportes Recurrentes</div>
+          </div>
+          <div class="func-tag" style="background:#c8dff8;color:#1a4a8a;">Auto</div>
+        </div>
+        <div class="func-body" style="padding-top:20px;">
+          <div class="func-row">
+            <div class="func-row-label">Problema que resuelve</div>
+            <div class="func-row-text">El 35 % del tiempo se dedica a tareas administrativas: generación manual de informes, hojas de tiempo y actualizaciones de estado. Identificado en entrevistas de salida como causa directa de agotamiento.</div>
+          </div>
+          <div class="func-row">
+            <div class="func-row-label">En el MVP basta con</div>
+            <div class="func-row-text">Plantilla autocompletable (Power Automate, Zapier o macro Excel) que genere el reporte semanal con un clic, a partir de datos ya registrados. Ahorro estimado: <strong>4–6 h/semana</strong>.</div>
+          </div>
+          <div class="func-kpi">% tiempo admin: 35 % → 25 % &nbsp;(–29 %)</div>
+          <div class="func-kpi" style="margin-top:8px;">Satisfacción herramientas: 5.2/10 → 7.5/10 &nbsp;(+44 %)</div>
+        </div>
+      </div>
+
+      <!-- F3 -->
+      <div class="func-card">
+        <div class="func-header" style="background:#f0fff7;border-bottom:1px solid var(--border);">
+          <div class="func-badge" style="background:#c4eed6;">🔔</div>
+          <div>
+            <div class="func-id" style="color:var(--green);">F3</div>
+            <div class="func-name">Canal de Señalización Temprana (Early Warning)</div>
+          </div>
+          <div class="func-tag" style="background:#c4eed6;color:#1a6a38;">Alerta</div>
+        </div>
+        <div class="func-body" style="padding-top:20px;">
+          <div class="func-row">
+            <div class="func-row-label">Problema que resuelve</div>
+            <div class="func-row-text">Los managers no detectan que un empleado está al límite hasta que ya es tarde. No existe ningún mecanismo de alerta preventiva.</div>
+          </div>
+          <div class="func-row">
+            <div class="func-row-label">En el MVP basta con</div>
+            <div class="func-row-text">Check-in semanal de exactamente 3 preguntas (&lt;2 min) vía Teams, Slack o email:</div>
+          </div>
+          <div class="checkin">
+            <div class="checkin-q"><span class="q-num">1.</span> ¿Cómo valoras tu carga esta semana? <em>(1–5)</em></div>
+            <div class="checkin-q"><span class="q-num">2.</span> ¿Tienes algún bloqueador que necesitas escalar? <em>(Sí/No + campo libre)</em></div>
+            <div class="checkin-q"><span class="q-num">3.</span> ¿Recomendarías InnoCorp como lugar de trabajo esta semana? <em>(0–10, base NPS)</em></div>
+          </div>
+          <div style="font-size:.75rem;color:var(--muted);margin-top:8px;margin-bottom:12px;">Si la respuesta a (1) es ≤ 2 durante dos semanas consecutivas, se notifica al manager directo para conversación 1:1.</div>
+          <div class="func-kpi">NPS empleados: 35 puntos → 50+ puntos &nbsp;(+43 %)</div>
+        </div>
+      </div>
+
+      <!-- F4 -->
+      <div class="func-card">
+        <div class="func-header" style="background:#fffbf0;border-bottom:1px solid var(--border);">
+          <div class="func-badge" style="background:#f4e4a8;">🤝</div>
+          <div>
+            <div class="func-id" style="color:var(--gold);">F4</div>
+            <div class="func-name">Retrospectiva de Carga Mensual (Team Review)</div>
+          </div>
+          <div class="func-tag" style="background:#f4e4a8;color:#8a6800;">Equipo</div>
+        </div>
+        <div class="func-body" style="padding-top:20px;">
+          <div class="func-row">
+            <div class="func-row-label">Problema que resuelve</div>
+            <div class="func-row-text">InnoCorp carece de un espacio estructurado para que los equipos revisen colectivamente su carga, redistribuyan tareas y cuestionen procesos innecesarios.</div>
+          </div>
+          <div class="func-row">
+            <div class="func-row-label">Sesión mensual de 60 minutos — agenda fija</div>
+            <div style="margin-top:8px;display:flex;flex-direction:column;gap:8px;">
+              <div style="display:flex;align-items:flex-start;gap:10px;font-size:.82rem;">
+                <div style="background:#f4e4a8;color:#8a6800;font-weight:700;padding:2px 8px;border-radius:6px;flex-shrink:0;">10 min</div>
+                <div>Revisar datos del dashboard F1 del mes</div>
+              </div>
+              <div style="display:flex;align-items:flex-start;gap:10px;font-size:.82rem;">
+                <div style="background:#f4e4a8;color:#8a6800;font-weight:700;padding:2px 8px;border-radius:6px;flex-shrink:0;">30 min</div>
+                <div>Identificar las 3 tareas que pueden eliminarse, delegarse o automatizarse</div>
+              </div>
+              <div style="display:flex;align-items:flex-start;gap:10px;font-size:.82rem;">
+                <div style="background:#f4e4a8;color:#8a6800;font-weight:700;padding:2px 8px;border-radius:6px;flex-shrink:0;">20 min</div>
+                <div>Compromisos de acción con dueño y fecha</div>
+              </div>
+            </div>
+          </div>
+          <div style="font-size:.75rem;color:var(--muted);margin-bottom:12px;">No requiere tecnología adicional; solo un protocolo documentado y un facilitador designado (puede ser el Scrum Master).</div>
+          <div class="func-kpi">Satisfacción herramientas/procesos: 5.2/10 → 7.5/10</div>
+          <div class="func-kpi" style="margin-top:8px;">NPS: 35 → 50+ puntos</div>
+        </div>
+      </div>
+
+    </div><!-- /func-cards -->
+
+    <!-- Out of scope -->
+    <div class="section-header" style="margin-top:52px;">
+      <div class="section-num">04</div>
+      <div class="section-title">Lo que el MVP NO incluye (Out of Scope)</div>
+      <div class="section-sub">Principio Lean: no atacar todas las causas simultáneamente para que los resultados del piloto sean interpretables.</div>
+    </div>
+
+    <div class="oos-grid">
+      <div class="oos-item">
+        <div class="oos-title">Planes de carrera individualizados</div>
+        <div class="oos-reason">Ataca la causa #2 (desarrollo profesional, 42 %) — no prioritaria en piloto.</div>
+      </div>
+      <div class="oos-item">
+        <div class="oos-title">Revisión salarial</div>
+        <div class="oos-reason">Ataca la causa #3 (salario, 35 %) — requiere decisión ejecutiva, fuera del scope de 100 k €.</div>
+      </div>
+      <div class="oos-item">
+        <div class="oos-title">Módulos de formación técnica</div>
+        <div class="oos-reason">Alta inversión; validar necesidad primero con el early warning (F3).</div>
+      </div>
+      <div class="oos-item">
+        <div class="oos-title">App móvil nativa</div>
+        <div class="oos-reason">Sobreingeniería para un piloto de 5–10 personas; usar Teams/Slack/web.</div>
+      </div>
+      <div class="oos-item">
+        <div class="oos-title">Integración con sistemas legacy (ERP/HRIS)</div>
+        <div class="oos-reason">Complejidad técnica alta; el MVP funciona con formularios simples.</div>
+      </div>
+    </div>
+
+    <div class="lean-box">
+      <strong>Principio Lean aplicado:</strong> Las causas #2 y #3 son reales pero secundarias en el piloto. El caso indica que la causa #1 (sobrecarga) puede resolverse sin inversiones significativas mediante procesos y metodologías ágiles. Atacarlas todas en el MVP invalidaría los resultados: no sabríamos qué funcionó.
+    </div>
+
+  </div>
+
+  <footer>
+    <div class="f-left">InnoCorp Technology Consulting · Sprint 1 · Feb 2026</div>
+    <div class="f-right">
+      <button class="nav-pill active" style="padding:8px 18px;" onclick="showScreen('metricas')">Ver métricas →</button>
+    </div>
+  </footer>
+</div>
+
+<!-- ===================== MÉTRICAS ===================== -->
+<div class="screen" id="screen-metricas">
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">05</div>
+      <div class="section-title">Trazabilidad con Métricas del Caso InnoCorp</div>
+      <div class="section-sub">Cada funcionalidad se vincula a una causa identificada y a un KPI baseline medible del caso.</div>
+    </div>
+
+    <table class="trace-table" style="border-radius:12px;overflow:hidden;">
+      <thead>
+        <tr>
+          <th style="border-radius:12px 0 0 0;">Cód.</th>
+          <th>Causa InnoCorp</th>
+          <th>Forma mínima en MVP</th>
+          <th style="border-radius:0 12px 0 0;">KPI del caso</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><span class="trace-badge" style="background:var(--accent);">F1</span></td>
+          <td>Sobrecarga invisible (52 h/sem)</td>
+          <td>Formulario + semáforo visual</td>
+          <td>Horas: 52 h → 45 h <span class="kpi-change neg-good">–13 %</span></td>
+        </tr>
+        <tr>
+          <td><span class="trace-badge" style="background:var(--accent2);">F2</span></td>
+          <td>35 % tiempo en tareas admin</td>
+          <td>Plantilla autocompletable 1-clic</td>
+          <td>% admin: 35 % → 25 % <span class="kpi-change neg-good">–29 %</span></td>
+        </tr>
+        <tr>
+          <td><span class="trace-badge" style="background:var(--green);">F3</span></td>
+          <td>Manager no detecta señales</td>
+          <td>Check-in 3 preguntas/semana</td>
+          <td>NPS: 35 → 50+ puntos <span class="kpi-change pos">+43 %</span></td>
+        </tr>
+        <tr>
+          <td><span class="trace-badge" style="background:var(--gold);color:#333;">F4</span></td>
+          <td>Sin espacio para redistribuir carga</td>
+          <td>Sesión 60 min mensual + protocolo</td>
+          <td>Satisfacción: 5.2 → 7.5/10 <span class="kpi-change pos">+44 %</span></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Baseline vs Target visual -->
+    <div class="section-header" style="margin-top:52px;">
+      <div class="section-title">Baseline vs. Target — Todos los KPIs</div>
+      <div class="section-sub">Comparativa de los 5 indicadores clave en 12 meses.</div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:16px;">
+
+      <div style="display:grid;grid-template-columns:200px 1fr 120px;align-items:center;gap:16px;">
+        <div style="font-size:.85rem;font-weight:500;">Churn Rate anual</div>
+        <div style="position:relative;height:36px;background:var(--cream);border-radius:8px;overflow:hidden;">
+          <div style="position:absolute;inset:0 30% 0 0;background:#fde8e4;border-radius:8px;display:flex;align-items:center;padding-left:12px;">
+            <span style="font-size:.78rem;font-weight:600;color:#c8441a;">20 % (baseline)</span>
+          </div>
+          <div style="position:absolute;top:4px;bottom:4px;left:0;width:70%;background:var(--green);border-radius:6px;display:flex;align-items:center;padding-left:12px;">
+            <span style="font-size:.78rem;font-weight:600;color:#fff;">14 % objetivo</span>
+          </div>
+        </div>
+        <div style="font-size:.8rem;font-weight:700;color:var(--green);">–30 %</div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:200px 1fr 120px;align-items:center;gap:16px;">
+        <div style="font-size:.85rem;font-weight:500;">NPS Empleados</div>
+        <div style="position:relative;height:36px;background:var(--cream);border-radius:8px;overflow:hidden;">
+          <div style="position:absolute;inset:0 30% 0 0;background:#e8f4ff;border-radius:8px;display:flex;align-items:center;padding-left:12px;">
+            <span style="font-size:.78rem;font-weight:600;color:#1a6ec8;">35 pts (baseline)</span>
+          </div>
+          <div style="position:absolute;top:4px;bottom:4px;left:0;width:70%;background:var(--accent2);border-radius:6px;display:flex;align-items:center;padding-left:12px;">
+            <span style="font-size:.78rem;font-weight:600;color:#fff;">50+ pts objetivo</span>
+          </div>
+        </div>
+        <div style="font-size:.8rem;font-weight:700;color:var(--accent2);">+43 %</div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:200px 1fr 120px;align-items:center;gap:16px;">
+        <div style="font-size:.85rem;font-weight:500;">Horas semanales</div>
+        <div style="position:relative;height:36px;background:var(--cream);border-radius:8px;overflow:hidden;">
+          <div style="position:absolute;inset:0 10% 0 0;background:#fde8e4;border-radius:8px;display:flex;align-items:center;padding-left:12px;">
+            <span style="font-size:.78rem;font-weight:600;color:#c8441a;">52 h (baseline)</span>
+          </div>
+          <div style="position:absolute;top:4px;bottom:4px;left:0;width:87%;background:var(--green);border-radius:6px;display:flex;align-items:center;padding-left:12px;">
+            <span style="font-size:.78rem;font-weight:600;color:#fff;">45 h objetivo</span>
+          </div>
+        </div>
+        <div style="font-size:.8rem;font-weight:700;color:var(--green);">–13 %</div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:200px 1fr 120px;align-items:center;gap:16px;">
+        <div style="font-size:.85rem;font-weight:500;">% Tiempo admin</div>
+        <div style="position:relative;height:36px;background:var(--cream);border-radius:8px;overflow:hidden;">
+          <div style="position:absolute;inset:0 0% 0 0;background:#fde8e4;border-radius:8px;display:flex;align-items:center;padding-left:12px;">
+            <span style="font-size:.78rem;font-weight:600;color:#c8441a;">35 % (baseline)</span>
+          </div>
+          <div style="position:absolute;top:4px;bottom:4px;left:0;width:71%;background:var(--green);border-radius:6px;display:flex;align-items:center;padding-left:12px;">
+            <span style="font-size:.78rem;font-weight:600;color:#fff;">25 % objetivo</span>
+          </div>
+        </div>
+        <div style="font-size:.8rem;font-weight:700;color:var(--green);">–29 %</div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:200px 1fr 120px;align-items:center;gap:16px;">
+        <div style="font-size:.85rem;font-weight:500;">Satisfacción herramientas</div>
+        <div style="position:relative;height:36px;background:var(--cream);border-radius:8px;overflow:hidden;">
+          <div style="position:absolute;inset:0 30% 0 0;background:#fff8e8;border-radius:8px;display:flex;align-items:center;padding-left:12px;">
+            <span style="font-size:.78rem;font-weight:600;color:#9a7800;">5.2/10 (baseline)</span>
+          </div>
+          <div style="position:absolute;top:4px;bottom:4px;left:0;width:75%;background:var(--gold);border-radius:6px;display:flex;align-items:center;padding-left:12px;">
+            <span style="font-size:.78rem;font-weight:600;color:#fff;">7.5/10 objetivo</span>
+          </div>
+        </div>
+        <div style="font-size:.8rem;font-weight:700;color:var(--gold);">+44 %</div>
+      </div>
+
+    </div>
+  </div>
+
+  <footer>
+    <div class="f-left">InnoCorp Technology Consulting · Sprint 1 · Feb 2026</div>
+    <div class="f-right">
+      <button class="nav-pill active" style="padding:8px 18px;" onclick="showScreen('criterios')">Ver criterios de éxito →</button>
+    </div>
+  </footer>
+</div>
+
+<!-- ===================== CRITERIOS ===================== -->
+<div class="screen" id="screen-criterios">
+  <div class="section">
+    <div class="section-header">
+      <div class="section-num">06</div>
+      <div class="section-title">Criterios de Éxito del Piloto (Definition of Done)</div>
+      <div class="section-sub">El piloto se considerará exitoso y viable para escalar si, tras 4–6 semanas con 5–10 participantes, se alcanzan estos indicadores.</div>
+    </div>
+
+    <div class="criterios">
+      <div class="criterio-row">
+        <div class="criterio-num">1</div>
+        <div class="criterio-desc">NPS del grupo piloto</div>
+        <div class="criterio-valor"><span class="valor-badge">≥ 45 puntos</span></div>
+        <div class="criterio-ref">vs. baseline: 35 puntos</div>
+      </div>
+      <div class="criterio-row">
+        <div class="criterio-num">2</div>
+        <div class="criterio-desc">Reducción percibida de horas semanales</div>
+        <div class="criterio-valor"><span class="valor-badge">≥ 1 h/semana promedio</span></div>
+        <div class="criterio-ref">vs. baseline: 52 h</div>
+      </div>
+      <div class="criterio-row">
+        <div class="criterio-num">3</div>
+        <div class="criterio-desc">Participantes que consideran que F2 les ahorra tiempo</div>
+        <div class="criterio-valor"><span class="valor-badge">≥ 70 % del grupo</span></div>
+        <div class="criterio-ref">Confirmación subjetiva</div>
+      </div>
+      <div class="criterio-row">
+        <div class="criterio-num">4</div>
+        <div class="criterio-desc">Eventos de señalización temprana (F3) procesados por managers</div>
+        <div class="criterio-valor"><span class="valor-badge">≥ 2 eventos</span></div>
+        <div class="criterio-ref">Durante el piloto</div>
+      </div>
+      <div class="criterio-row">
+        <div class="criterio-num">5</div>
+        <div class="criterio-desc">Tasa de participación en check-in semanal (F3)</div>
+        <div class="criterio-valor"><span class="valor-badge">≥ 80 %</span></div>
+        <div class="criterio-ref">Durante todo el piloto</div>
+      </div>
+    </div>
+
+
+    <!-- Team -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:40px;">
+      <div style="border:1px solid var(--border);border-radius:12px;padding:24px;">
+        <div style="font-size:.65rem;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:10px;">Equipo de Proyecto</div>
+        <div style="font-family:'DM Serif Display';font-size:1.3rem;margin-bottom:4px;">Las Alemanas</div>
+        <div style="font-size:.85rem;color:var(--muted);">Intrapreneurs InnoCorp · Sprint 1</div>
+      </div>
+      <div style="border:1px solid var(--border);border-radius:12px;padding:24px;">
+        <div style="font-size:.65rem;text-transform:uppercase;letter-spacing:.12em;color:var(--muted);margin-bottom:10px;">Sponsor Ejecutivo</div>
+        <div style="font-family:'DM Serif Display';font-size:1.3rem;margin-bottom:4px;">María González</div>
+        <div style="font-size:.85rem;color:var(--muted);">CPO, InnoCorp Technology Consulting</div>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>
+    <div class="f-left">InnoCorp Technology Consulting · Sprint 1 · Feb 2026</div>
+    <div class="f-right">
+      <button class="nav-pill active" style="padding:8px 18px;" onclick="showScreen('portada')">← Volver al inicio</button>
+    </div>
+  </footer>
+</div>
+
+<script>
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-pill').forEach(p => p.classList.remove('active'));
+    document.getElementById('screen-' + id).classList.add('active');
+    document.querySelectorAll('.nav-pill').forEach(p => {
+      if (p.textContent.toLowerCase().includes(id.substring(0,4))) p.classList.add('active');
+    });
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+
+  // Progress bar
+  window.addEventListener('scroll', () => {
+    const el = document.querySelector('.screen.active');
+    if (!el) return;
+    const total = el.scrollHeight - window.innerHeight;
+    const pct = total > 0 ? Math.min(100, (window.scrollY / total) * 100) : 100;
+    document.getElementById('prog').style.width = pct + '%';
+  });
+</script>
+</body>
+</html>
